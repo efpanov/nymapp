@@ -2,11 +2,13 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const fetch = require('node-fetch');
+const cors = require('cors');                    // ← добавили
 const { Telegraf } = require('telegraf');
 const { verifyInitData } = require('./utils/verifyInitData');
 
 const app = express();
 app.use(express.json());
+app.use(cors());                                 // ← включили CORS (нужно, т.к. фронт на Vercel)
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL;
@@ -21,6 +23,11 @@ if (!BOT_TOKEN || !PUBLIC_BASE_URL) {
 }
 
 const API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+
+// === Healthcheck (важно для проверки) ===
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, now: new Date().toISOString() });
+});
 
 // === Bot ===
 const bot = new Telegraf(BOT_TOKEN);
@@ -160,9 +167,9 @@ app.post('/api/create-stars-invoice', async (req, res) => {
   }
 });
 
-// Static
+// Static (не обязателен на Railway, но оставим)
 app.use(express.static(path.join(__dirname, 'web')));
-app.get('*', (req, res) => {
+app.get('*', (_req, res) => {
   res.sendFile(path.join(__dirname, 'web', 'index.html'));
 });
 
