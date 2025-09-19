@@ -1,172 +1,121 @@
-// Безопасная инициализация SDK
 const tg = window.Telegram?.WebApp;
-if (tg) {
-  tg.ready();
-  tg.expand();
-  document.body.classList.add('tg-theme');
-}
+if (tg) { tg.ready(); tg.expand(); document.body.classList.add('tg-theme'); }
 
-// Данные продуктов
 const PRODUCTS = {
-  FULL_DEV_LEAD: {
-    title: 'Разработка под ключ',
-    desc: 'Проектирование, дизайн, разработка Mini App, интеграции. Индивидуальная смета от 50 000₽.',
-    type: 'lead' // без оплаты
-  },
-  ONE_TIME_SERVICE_10K: {
-    title: 'Приложение для сферы услуг',
-    desc: 'Готовое решение с настройкой под ваш кейс. Разовая покупка: 10 000₽.',
-    type: 'buy'
-  },
-  SCHEDULE_SUB_299: {
-    title: 'Расписание',
-    desc: 'Трекер клиентов и записей. Подписка 30 дней: 299₽.',
-    type: 'sub'
-  }
+  FULL_DEV_LEAD: { title:'Разработка под ключ', type:'lead' },
+  ONE_TIME_SERVICE_10K: { title:'Приложение для сферы услуг', type:'buy' },
+  SCHEDULE_SUB_299: { title:'Расписание', type:'sub' },
+  TEST_STAR_1: { title:'Тестовый товар (1 Star)', type:'buy' }
 };
 
-// Обновим профиль из TG
-const usernameEl = document.getElementById('profile-username');
+// Профиль
 const user = tg?.initDataUnsafe?.user;
-if (usernameEl) {
-  usernameEl.textContent = user?.username ? '@' + user.username : 'Гость';
-}
+const usernameEl = document.getElementById('profile-username');
+if (usernameEl) usernameEl.textContent = user?.username ? '@'+user.username : 'Гость';
 
-// ===== Табы (каталог/корзина/профиль), как у DurgerKing =====
+// Табы
 const tabs = {
   catalog: document.getElementById('tab-catalog'),
   cart: document.getElementById('tab-cart'),
-  profile: document.getElementById('tab-profile')
+  profile: document.getElementById('tab-profile'),
 };
 const tabButtons = Array.from(document.querySelectorAll('.tabbar__btn'));
-
-function openTab(name) {
-  Object.values(tabs).forEach(t => t.classList.remove('tab--active'));
+function openTab(name){
+  Object.values(tabs).forEach(t=>t.classList.remove('tab--active'));
   tabs[name].classList.add('tab--active');
-  tabButtons.forEach(b => b.classList.toggle('is-active', b.dataset.target === name));
+  tabButtons.forEach(b=>b.classList.toggle('is-active', b.dataset.target===name));
 }
-tabButtons.forEach(btn => btn.addEventListener('click', () => openTab(btn.dataset.target)));
+tabButtons.forEach(btn=>btn.addEventListener('click',()=>openTab(btn.dataset.target)));
 
-// ===== Модалка «Подробнее» =====
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modal-title');
-const modalText = document.getElementById('modal-text');
-const btnModalClose = document.getElementById('modal-close');
-const btnModalContinue = document.getElementById('modal-continue');
+// Корзина (RAM)
+let cart = []; // [{productId, qty}]
+const cartList = document.getElementById('cart-list');
 
-let selectedProduct = null;
+function renderCart(){
+  if (!cart.length){
+    cartList.className = 'empty';
+    cartList.textContent = 'Корзина пуста. Вернитесь в каталог и нажмите «Оформить».';
+    if (tg){ tg.MainButton.hide(); tg.BackButton?.hide(); }
+    return;
+  }
+  cartList.className = '';
+  cartList.innerHTML = cart.map((i,idx)=>`
+    <div class="card" style="margin:8px 12px;">
+      <div class="card__body">
+        <div class="card__row">
+          <strong>${PRODUCTS[i.productId].title}</strong>
+          <button data-remove="${idx}" class="btn btn--ghost">Удалить</button>
+        </div>
+        <div class="muted">Кол-во: ${i.qty}</div>
+      </div>
+    </div>
+  `).join('');
 
-function openModal(productId){
-  selectedProduct = productId;
-  const p = PRODUCTS[productId];
-  modalTitle.textContent = p.title;
-  modalText.textContent = p.desc;
-  modal.classList.remove('hidden');
-  modal.style.display = 'grid';
+  cartList.querySelectorAll('[data-remove]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.remove,10);
+      cart.splice(idx,1);
+      renderCart();
+    });
+  });
+
+  if (tg){
+    tg.MainButton.setText('Перейти к оплате/заявке');
+    tg.MainButton.show();
+    tg.offEvent('mainButtonClicked', onCartMainClick);
+    tg.onEvent('mainButtonClicked', onCartMainClick);
+
+    tg.BackButton?.show();
+    tg.offEvent('backButtonClicked', onBackFromCart);
+    tg.onEvent('backButtonClicked', onBackFromCart);
+  }
 }
-function closeModal(){
-  modal.classList.add('hidden');
-  modal.style.display = 'none';
-}
-btnModalClose.addEventListener('click', closeModal);
-modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
+function onBackFromCart(){ openTab('catalog'); if (tg){ tg.MainButton.hide(); tg.BackButton?.hide(); }}
 
-// Навесим на кнопки «Подробнее» в карточках
+// «Оформить» на карточках → в корзину → открыть Корзину
 Array.from(document.querySelectorAll('.card__more')).forEach(btn=>{
   btn.addEventListener('click', (e)=>{
     const id = e.currentTarget.dataset.modal;
-    openModal(id);
+    const found = cart.find(i=>i.productId===id);
+    if (found) found.qty += 1; else cart.push({ productId:id, qty:1 });
+    openTab('cart');
+    renderCart();
+    // подставим username
+    const $u = document.getElementById('f-username');
+    if ($u && !$u.value) $u.value = user?.username ? `@${user.username}` : '';
   });
 });
 
-// ===== Шторка оформления + системная MainButton (как у DurgerKing) =====
-const sheet = document.getElementById('sheet');
-const sheetTitle = document.getElementById('sheet-title');
-const sheetClose = document.getElementById('sheet-close');
+// Поля оформления
+const $u = document.getElementById('f-username');
+const $p = document.getElementById('f-phone');
+const $c = document.getElementById('f-comment');
+if ($u && !$u.value) $u.value = user?.username ? `@${user.username}` : '';
 
-const fUsername = document.getElementById('f-username');
-const fPhone = document.getElementById('f-phone');
-const fComment = document.getElementById('f-comment');
+// Нажатие системной кнопки в корзине
+async function onCartMainClick(){
+  const username = $u?.value.trim() || '';
+  const phone = $p?.value.trim() || '';
+  const comment = $c?.value.trim() || '';
 
-function openSheet(productId){
-  const p = PRODUCTS[productId];
-  sheetTitle.textContent = 'Оформление — ' + p.title;
-
-  // Предзаполним username из TG
-  fUsername.value = user?.username ? '@' + user.username : '';
-
-  sheet.classList.remove('hidden');
-  sheet.style.display = 'block';
-
-  if (tg) {
-    // В DurgerKing основная CTA — системная кнопка
-    const text = p.type === 'lead' ? 'Отправить заявку' : (p.type === 'buy' ? 'Оплатить' : 'Оформить подписку');
-    tg.MainButton.setText(text);
-    tg.MainButton.show();
-
-    // BackButton полезен для UX
-    tg.BackButton?.show();
-    tg.onEvent('backButtonClicked', closeSheet);
-
-    tg.onEvent('mainButtonClicked', onMainButtonClicked);
-  }
-}
-function closeSheet(){
-  sheet.classList.add('hidden');
-  sheet.style.display = 'none';
-  if (tg) {
-    tg.MainButton.hide();
-    tg.offEvent('mainButtonClicked', onMainButtonClicked);
-    tg.BackButton?.hide();
-    tg.offEvent('backButtonClicked', closeSheet);
-  }
-}
-sheetClose.addEventListener('click', closeSheet);
-
-// Кнопка «Продолжить» в модалке → открыть оформление
-btnModalContinue.addEventListener('click', ()=>{
-  closeModal();
-  if (selectedProduct) openSheet(selectedProduct);
-});
-
-async function onMainButtonClicked(){
-  const order = {
-    productId: selectedProduct,
-    username: fUsername.value.trim(),
-    phone: fPhone.value.trim(),
-    comment: fComment.value.trim()
-  };
-
-  // Лид — без оплаты: отправим и закроем
-  if (PRODUCTS[selectedProduct].type === 'lead') {
-    try {
-      await fetch('/api/send-lead', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ initData: tg?.initData, lead: order })
-      });
-      tg?.showPopup({ title:'Заявка отправлена', message:'Мы свяжемся с вами.' });
-    } catch (_) {
-      tg?.showAlert('Не удалось отправить заявку. Попробуйте ещё раз.');
-    }
-    closeSheet();
-    return;
+  // есть ли оплачиваемые товары?
+  const hasPayable = cart.some(i => ['TEST_STAR_1','ONE_TIME_SERVICE_10K','SCHEDULE_SUB_299'].includes(i.productId));
+  if (!hasPayable){
+    // только лиды → уведомить владельца
+    await fetch('/api/notify-order', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ initData: tg?.initData, payload: { items: cart, username, phone, comment } })
+    }).catch(()=>{});
+    tg?.showPopup({ title:'Заявка отправлена', message:'Мы свяжемся с вами.' });
+    cart = []; renderCart(); openTab('catalog'); return;
   }
 
-  // Для оплаты Stars нужен ваш backend. Если ещё не подключили — покажем подсказку.
-  tg?.showPopup({
-    title: 'Оплата',
-    message: 'Оплата Stars будет доступна после подключения серверного API (/api/create-stars-invoice).',
-    buttons: [{ id:'ok', type:'close', text:'Понятно' }]
-  });
-
-  // Когда сервер будет готов, раскомментируй:
-  
+  // создаём инвойс Stars
   const res = await fetch('/api/create-stars-invoice', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ initData: tg?.initData, order })
+    body: JSON.stringify({ initData: tg?.initData, order: { items: cart, username, phone, comment } })
   });
   const data = await res.json();
   if (data.invoiceLink) tg?.openLink(data.invoiceLink);
   else tg?.showAlert('Не удалось создать счёт. Попробуйте ещё раз.');
-  
 }

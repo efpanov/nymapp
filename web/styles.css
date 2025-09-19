@@ -2,8 +2,6 @@
   --bg:#0f1115; --text:#eef1f7; --muted:#9aa3b2; --card:#151925; --border:#242a36;
   --accent:#6c8cff; --accent-2:#8a9cff; --shadow:0 10px 30px rgba(0,0,0,.35);
 }
-
-/* Тема из Telegram (авто-подстройка) */
 body.tg-theme{
   --bg: var(--tg-theme-bg-color, #0f1115);
   --text: var(--tg-theme-text-color, #eef1f7);
@@ -12,42 +10,23 @@ body.tg-theme{
   --card: color-mix(in oklab, var(--bg) 85%, white 15%);
   --border: color-mix(in oklab, var(--bg) 70%, white 30%);
 }
-
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   background:var(--bg); color:var(--text);
 }
-
-/* HERO */
-.hero{
-  padding:20px 16px 8px;
-  background: radial-gradient(1000px 400px at 50% -200px, rgba(108,140,255,.25), transparent 60%);
-}
+.hero{ padding:20px 16px 8px; background: radial-gradient(1000px 400px at 50% -200px, rgba(108,140,255,.25), transparent 60%); }
 .hero__brand{display:flex; align-items:center; gap:12px;}
-.logo{
-  width:40px; height:40px; border-radius:12px; background:var(--accent);
-  display:grid; place-items:center; font-weight:800; color:#111; box-shadow:var(--shadow);
-}
+.logo{ width:40px; height:40px; border-radius:12px; background:var(--accent); display:grid; place-items:center; font-weight:800; color:#111; box-shadow:var(--shadow); }
 .hero__title{margin:0; font-size:20px; font-weight:800; letter-spacing:.2px;}
 .hero__subtitle{margin-top:2px; color:var(--muted); font-size:13px}
-
-/* Контент + отступ под таб-бар */
 .page{padding:8px 12px 80px;}
-
-/* Заголовки секций */
 .section-title{margin:8px 4px 12px; font-size:16px; font-weight:700}
-
-/* Карточки — стиль DurgerKing */
 .cards{display:grid; grid-template-columns:1fr; gap:12px;}
 @media(min-width:560px){ .cards{grid-template-columns:repeat(2,1fr);} }
 @media(min-width:920px){ .cards{grid-template-columns:repeat(3,1fr);} }
-
-.card{
-  background:var(--card); border:1px solid var(--border); border-radius:18px;
-  overflow:hidden; box-shadow:var(--shadow); transition:transform .15s ease, box-shadow .15s ease;
-}
+.card{ background:var(--card); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); transition:transform .15s ease, box-shadow .15s ease; }
 .card:hover{ transform: translateY(-2px); box-shadow:0 16px 40px rgba(0,0,0,.45); }
 .card__media img{ width:100%; aspect-ratio:16/10; object-fit:cover; display:block; }
 .card__body{ padding:12px; }
@@ -55,112 +34,17 @@ body{
 .card__row{ display:flex; align-items:center; gap:8px; justify-content:space-between; margin-bottom:8px;}
 .price{ font-weight:800;}
 .price--from{ opacity:.9;}
-.pill{
-  font-size:12px; padding:6px 8px; border-radius:999px; border:1px solid var(--border);
-  color:var(--muted);
-}
-.card__more{
-  width:100%; border:none; border-radius:12px; padding:10px 12px; font-weight:700;
-  background:var(--accent); color:#fff;
-}
-
-/* Пустые состояния */
-.empty{
-  margin:20px; padding:16px; border:1px dashed var(--border); border-radius:14px; color:var(--muted);
-}
-
-/* Профиль */
+.pill{ font-size:12px; padding:6px 8px; border-radius:999px; border:1px solid var(--border); color:var(--muted); }
+.card__more{ width:100%; border:none; border-radius:12px; padding:10px 12px; font-weight:700; background:var(--accent); color:#111; }
+.empty{ margin:20px; padding:16px; border:1px dashed var(--border); border-radius:14px; color:var(--muted); }
 .profile{ padding:12px; }
 #profile-username{ font-weight:800; font-size:16px; }
-
-/* TABBAR — как в DurgerKing */
-.tabbar{
-  position:fixed; left:0; right:0; bottom:0;
-  background: color-mix(in oklab, var(--bg) 80%, white 20%);
-  border-top:1px solid var(--border);
-  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
-  padding:10px; backdrop-filter: blur(10px);
-}
-.tabbar__btn{
-  appearance:none; border:1px solid var(--border); background:var(--card);
-  color:var(--text); font-weight:700; border-radius:12px; padding:10px 8px;
-}
-.tabbar__btn.is-active{
-  border-color: transparent; background: var(--accent); color:#111;
-}
-
-/* Табы */
+.tabbar{ position:fixed; left:0; right:0; bottom:0; background: color-mix(in oklab, var(--bg) 80%, white 20%); border-top:1px solid var(--border); display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:10px; backdrop-filter: blur(10px); }
+.tabbar__btn{ appearance:none; border:1px solid var(--border); background:var(--card); color:var(--text); font-weight:700; border-radius:12px; padding:10px 8px; }
+.tabbar__btn.is-active{ border-color: transparent; background: var(--accent); color:#111; }
 .tab{ display:none; }
 .tab--active{ display:block; }
-
-/* Модалка */
-.modal{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; place-items:center; padding:16px;}
-.modal.hidden{ display:none; }
-.modal__panel{
-  width:min(520px, 92vw); background:var(--card); border:1px solid var(--border);
-  border-radius:16px; box-shadow:var(--shadow); padding:16px;
-}
-.modal__panel h3{ margin:0 0 8px; }
-.modal__actions{ margin-top:14px; display:flex; gap:10px; justify-content:flex-end; }
-
-/* Шторка оформления */
-.sheet{
-  position:fixed; left:0; right:0; bottom:0; background:var(--card); border-top:1px solid var(--border);
-  border-radius:16px 16px 0 0; box-shadow:0 -12px 40px rgba(0,0,0,.45); padding:12px; display:none;
-}
-.sheet.hidden{ display:none; }
-.sheet__header{ display:flex; align-items:center; justify-content:space-between; }
-.sheet__title{ font-weight:800; font-size:16px; }
-.field{ display:flex; flex-direction:column; gap:6px; margin:10px 0;}
-input,textarea{
-  width:100%; border:1px solid var(--border); background:transparent; color:var(--text);
-  border-radius:12px; padding:10px 12px; outline:none;
-}
-
-/* Кнопки общие */
-.btn{ font-weight:800; border-radius:12px; padding:10px 14px; }
-.btn--primary{ border:none; background:var(--accent); color:#111; }
-.btn--ghost{ border:1px solid var(--border); background:transparent; color:var(--text); }
-
-.muted{ color:var(--muted); font-size:13px; }
-
-
-.app-header {
-  padding: 24px 16px 8px;
-  text-align: center;
-}
-
-.app-header h1 {
-  margin: 0 0 6px;
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--muted);
-}
-
-.container {
-  padding: 16px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-}
-
-.card h3 {
-  margin: 0 0 6px;
-}
-
-.price {
-  color: var(--muted);
-}
-
+.field{ display:flex; flex-direction:column; gap:6px; margin:10px 12px; }
+input,textarea{ width:100%; border:1px solid var(--border); background:transparent; color:var(--text); border-radius:12px; padding:10px 12px; outline:none; }
+.checkout-fields{ margin-bottom:100px; }
+.muted{ color:var(--muted); font-size:13px; margin:0 12px; }
