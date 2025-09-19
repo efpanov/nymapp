@@ -160,7 +160,7 @@ async function onMainButtonClicked(){
   });
 
   // Когда сервер будет готов, раскомментируй:
-  /*
+  
   const res = await fetch('/api/create-stars-invoice', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ initData: tg?.initData, order })
@@ -168,5 +168,5 @@ async function onMainButtonClicked(){
   const data = await res.json();
   if (data.invoiceLink) tg?.openLink(data.invoiceLink);
   else tg?.showAlert('Не удалось создать счёт. Попробуйте ещё раз.');
-  */
+  
 }
