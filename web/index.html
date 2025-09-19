@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>NymApp — Магазин услуг</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <h1>NymApp</h1>
+    <p class="subtitle">Мини-приложения и сервисы для Telegram</p>
+  </header>
+
+  <main class="container">
+    <section class="grid">
+      <!-- Карточка 1 -->
+      <article class="card" data-id="FULL_DEV_LEAD">
+        <img src="./images/service_full.png" alt="Разработка под ключ"/>
+        <h3>Разработка под ключ</h3>
+        <p class="price">от 50 000₽</p>
+        <button class="info-btn" data-modal="full">Подробнее</button>
+      </article>
+
+      <!-- Карточка 2 -->
+      <article class="card" data-id="ONE_TIME_SERVICE_10K">
+        <img src="./images/service_single.png" alt="Приложение для сферы услуг"/>
+        <h3>Приложение для сферы услуг</h3>
+        <p class="price">10 000₽</p>
+        <button class="info-btn" data-modal="single">Подробнее</button>
+      </article>
+
+      <!-- Карточка 3 -->
+      <article class="card" data-id="SCHEDULE_SUB_299">
+        <img src="./images/schedule_sub.png" alt="Расписание — подписка"/>
+        <h3>Расписание</h3>
+        <p class="price">299₽ / мес</p>
+        <button class="info-btn" data-modal="schedule">Подробнее</button>
+      </article>
+    </section>
+  </main>
+
+  <!-- Модалка -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="modal-title"></h3>
+      <p id="modal-text"></p>
+      <div class="modal-actions">
+        <button id="modal-close" class="secondary">Закрыть</button>
+        <button id="modal-continue" class="primary">Продолжить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Чекаут -->
+  <div id="checkout" class="sheet hidden">
+    <h3 id="checkout-title">Оформление</h3>
+    <label>Ваш Telegram
+      <input id="username" placeholder="@username"/>
+    </label>
+    <label>Телефон (необязательно)
+      <input id="phone" placeholder="+7 999 123-45-67"/>
+    </label>
+    <label>Комментарий
+      <textarea id="comment" rows="3" placeholder="Пожелания к заказу"></textarea>
+    </label>
+    <div class="sheet-actions">
+      <button id="checkout-cancel" class="secondary">Отмена</button>
+    </div>
+  </div>
+</body>
+</html>
